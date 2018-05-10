@@ -1,0 +1,87 @@
+---
+title: "Econ Homework 3"
+author: "Lauren Krohmer"
+date: "5/8/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+library(tidyverse)
+library(lmtest)
+library(stargazer)
+
+HW3Data <- read_csv("HW3Data.csv")
+```
+
+1. Create a linear probability model that predicts a respondents's probability of voting 'yes' on the ballot base don their age, income, NEP score, risk reduction offered and the cost of the program to that respondent.
+
+```{r}
+
+HW3Data$income <- factor(HW3Data$income)
+HW3Data$age <- factor(HW3Data$age)
+
+HW3Data$age<- relevel(HW3Data$age, ref = "tothirty")
+levels(HW3Data$age)
+
+whale_lpm<- glm(vote ~ risk + bid + NEP + income + age, data = HW3Data, family = "binomial")
+
+summary(whale_lpm)
+
+
+
+```
+logit(odds of yes vote) = -2.088 + 0.0042(risk) - 0.0059(bid) + 0.083(NEP) + 0.059(incomeone_percent) + 0.04(incomepoor) + 0.060(incomerich)+ 0.278(incomevery_rich) + 0.063(agetofifty) - 0.127(agetoforty) - 0.108(agetosixty) + 0.092(agetothirty)
+
+```{r star_gazer, results = 'asis', header = FALSE, echo = FALSE}
+stargazer(whale_lpm, 
+          type = 'html', 
+          title = "Vote for VSR in Santa Barbara")
+
+
+```
+
+For every unit increase in risk, the log odds of a "yes" vote increases by 0.004.  
+
+```{r}
+
+whale_odds <- function(whale_lpm){
+  odds <- exp(whale_lpm)
+  prob <- odds / (1 + odds)
+  return(prob)
+}
+
+whale_odds(coef(whale_lpm))
+
+```
+```{r}
+
+predict_prob<- predict.glm(whale_lpm, type = "response", se.fit = TRUE)
+predict_prob$fit
+
+fitted<- as.data.frame(predict_prob$fit)
+
+```
+
+
+
+2. 
+
+Increase risk reduction 1 unit --> increase probability of "yes" vote by .5
+The value of reducing risk is very high
+
+
+
+3. Estimate willingness to pay (aka bid) for VSR of 60% 
+
+```{r}
+
+
+
+```
+
+
